@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 import logging
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -57,7 +58,7 @@ RECOMMENDATIONS = {
 
 # Ежедневные рекомендации по питанию для каждого дня цикла
 DAILY_NUTRITION_TIPS = {
-    # День 1-7 (Фолликулярная фаза: Восстановление энергии)
+   # День 1-7 (Фолликулярная фаза: Восстановление энергии)
     1: "Не забудь включить в завтрак овсянку с ягодами и орехами. Это отличный источник клетчатки.",
     2: "Включай в обед зеленые овощи, чтобы пополнить запас магния.",
     3: "Не забывай об источниках железа, таких как мясо или шпинат, чтобы поддерживать уровень железа.",
@@ -93,6 +94,64 @@ DAILY_NUTRITION_TIPS = {
     27: "Сегодня можно побаловать себя темным шоколадом. Он богат магнием, который поможет справиться с ПМС.",
     28: "Заверши день лёгким ужином с овощами и белком, чтобы не перегружать пищеварение."
 }
+
+def main():
+    """Запуск бота."""
+    # Получаем токен из переменных окружения
+    token = '7712191325:AAFeVf-Vk2tm0Zfm6D9EeSKsGlZ04H2QN9c'
+    
+    if not token:
+        logger.error("Токен Telegram бота не найден. Установите переменную окружения TELEGRAM_BOT_TOKEN")
+        return
+    
+    # Создаем Application и передаем токен
+    application = Application.builder().token(token).build()
+    
+    # Настройка обработчика разговора
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+        states={
+            NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
+            AGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_age)],
+            LAST_PERIOD_DATE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_last_period_date)],
+            PERIOD_DURATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_period_duration)],
+            MAIN_MENU: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_selection)
+            ],
+            ENERGY_LEVEL: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, log_energy_level)
+            ]
+        },
+        fallbacks=[CommandHandler('cancel', lambda update, context: ConversationHandler.END)],
+    )
+    
+    # Добавляем обработчики команд
+    application.add_handler(conv_handler)
+    application.add_handler(CommandHandler('show_phase', show_current_phase))
+    application.add_handler(CommandHandler('recommendations', show_recommendations))
+    application.add_handler(CommandHandler('nutrition_tip', show_today_nutrition_tip))
+    application.add_handler(CommandHandler('energy_stats', show_cycle_statistics))
+    application.add_handler(CommandHandler('settings', change_settings))
+    
+    # Обработчик ошибок
+    application.add_error_handler(error_handler)
+    
+    # Запускаем бота
+    logger.info("Бот запущен. Нажмите Ctrl+C для остановки.")
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+def error_handler(update: object, context: CallbackContext):
+    """Обработчик ошибок."""
+    logger.error(f"Произошла ошибка: {context.error}")
+    
+    # Если есть обновление и это сообщение, пытаемся отправить сообщение об ошибке
+    if update and hasattr(update, 'message'):
+        try:
+            update.message.reply_text(
+                "Упс! Что-то пошло не так. Попробуйте снова или перезапустите бота командой /start"
+            )
+        except Exception as e:
+            logger.error(f"Не удалось отправить сообщение об ошибке: {e}")
 
 async def start(update: Update, context: CallbackContext) -> int:
     """Начало разговора и запрос имени пользователя."""
@@ -493,4 +552,27 @@ async def handle_menu_selection(update: Update, context: CallbackContext) -> int
             reply_markup=get_main_menu_keyboard()
         )
         return
-    
+# - start
+# - get_name
+# - get_age
+# - get_last_period_date
+# - get_period_duration
+# - get_main_menu_keyboard
+# - get_energy_level_keyboard
+# - calculate_cycle_day
+# - determine_phase
+# - show_current_phase
+# - send_daily_nutrition_tip
+# - start_energy_log
+# - log_energy_level
+# - show_recommendations
+# - show_today_nutrition_tip
+# - show_cycle_statistics
+# - change_settings
+# - handle_menu_selection
+
+# Копируем все эти функции из оригинального кода без каких-либо изменений
+# Функции остаются точно такими же, как в оригинальном файле telbot.py
+
+if __name__ == '__main__':
+    main()
