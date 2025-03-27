@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8443
 
 # Команда для запуска приложения
-CMD ["python", "telbot.py"]
+CMD ["python", "bot.py"]

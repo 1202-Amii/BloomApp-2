@@ -135,10 +135,21 @@ def main():
     
     # Обработчик ошибок
     application.add_error_handler(error_handler)
-    
-    # Запускаем бота
-    logger.info("Бот запущен. Нажмите Ctrl+C для остановки.")
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    # Выбор между polling и webhook
+    webhook_url = "https://bloom-app-6dm1.onrender.com/bot7712191325:AAFeVf-Vk2tm0Zfm6D9EeSKsGlZ04H2QN9c"
+    if webhook_url:
+        # Настройка webhook
+        logger.info(f"Запуск бота с webhook на {webhook_url}")
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=int(os.environ.get('PORT', 8443)),
+            url_path=f"bot{token}",
+            webhook_url=f"{webhook_url}/bot{token}"
+        )
+    else:
+        # Запуск в режиме polling (как сейчас)
+        logger.info("Бот запущен в режиме polling. Нажмите Ctrl+C для остановки.")
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 def error_handler(update: object, context: CallbackContext):
     """Обработчик ошибок."""
