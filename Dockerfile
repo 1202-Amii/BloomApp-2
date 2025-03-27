@@ -9,6 +9,7 @@ COPY requirements.txt .
 
 # Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install "python-telegram-bot[webhooks]"
 
 # Копируем все файлы проекта в контейнер
 COPY . .
