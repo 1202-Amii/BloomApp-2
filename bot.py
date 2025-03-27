@@ -136,7 +136,7 @@ def main():
     # Обработчик ошибок
     application.add_error_handler(error_handler)
     # Выбор между polling и webhook
-    webhook_url = "https://bloom-app-6dm1.onrender.com/bot7712191325:AAFeVf-Vk2tm0Zfm6D9EeSKsGlZ04H2QN9c"
+    webhook_url = "https://bloomapp-2.onrender.com/bot7712191325:AAFeVf-Vk2tm0Zfm6D9EeSKsGlZ04H2QN9c"
     if webhook_url:
         # Настройка webhook
         logger.info(f"Запуск бота с webhook на {webhook_url}")
